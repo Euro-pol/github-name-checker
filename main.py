@@ -5,18 +5,21 @@ import time
 
 http = httpx.Client()
 
-if (choice == "c"):
-    i = int(input("How much char names you want to check: "))
-delay = float(input("How much seconds you want to wait between requests: "))
+def valid_name(name):
+    """
+    Returns True if the name is available, False otherwise. And "ratelimited" if the API is ratelimited.
+    """
 
     resp = http.get(f"https://github.com/{name}")
 
-def checkchar():
+    if resp.status_code == 404:
+        return True
+    elif resp.status_code == 200:
+        return False
+    elif resp.status_code == 429:
+        return "ratelimited"
     name = ""
-    for x in range(i):
-        name += random.choice("abcdefghijklmnopqrstuvwxyz1234567890")
-    r = requests.get(f"https://github.com/{name}")
-    if (r.status_code == 404):
+    valid = valid_name(name)
         print(colorama.Fore.GREEN + f"{name} is available!")
         f.write(f"{name}\n")
     elif (r.status_code == 200):
@@ -28,6 +31,7 @@ def checkchar():
 def checkword():
     name = ""
     name = http.get("https://random-word-api.herokuapp.com/word").json()[0]
+    valid = valid_name(name)
         print(colorama.Fore.GREEN + f"{name} is available!")
         f.write(f"{name}\n")
     elif (r.status_code == 200):
