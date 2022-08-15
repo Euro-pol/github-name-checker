@@ -23,7 +23,9 @@ def valid_name(name):
 def add_name_to_file(name):
     with open(names_file, "a") as f:
         f.write(f"{name}\n")
+def check_char_name(length_of_name):
     name = ""
+    for x in range(length_of_name):
         name += random.choice(alphabet)
     valid = valid_name(name)
     if valid:
@@ -35,7 +37,7 @@ def add_name_to_file(name):
         print(colorama.Fore.RED + f"Getting rate limited, sleeping for 1s.")
         time.sleep(1)
 
-def checkword():
+def check_word_name():
     name = ""
     name = http.get("https://random-word-api.herokuapp.com/word").json()[0]
     valid = valid_name(name)
@@ -48,10 +50,13 @@ def checkword():
         print(colorama.Fore.RED + f"Getting rate limited, sleeping for 1s.")
         time.sleep(1)     
 
+    if (choice == "c"):
+        length_of_char_names = int(input("How long do you want the char names to be: "))
 
 while True:
     if (choice == "c"):
-        checkchar()
-    elif (choice == "w"):
-        checkword()    
+        if choice == "c":
+            check_char_name(length_of_char_names)
+        elif choice == "w":
+            check_word_name()  
     time.sleep(delay)
