@@ -20,14 +20,17 @@ def valid_name(name):
         return False
     elif resp.status_code == 429:
         return "ratelimited"
+
 def add_name_to_file(name):
     with open(names_file, "a") as f:
         f.write(f"{name}\n")
+
 def check_char_name(length_of_name):
     name = ""
     for x in range(length_of_name):
         name += random.choice(alphabet)
     valid = valid_name(name)
+
     if valid:
         print(colorama.Fore.GREEN + f"{name} is available!")
         add_name_to_file(name)
@@ -41,6 +44,7 @@ def check_word_name():
     name = ""
     name = http.get("https://random-word-api.herokuapp.com/word").json()[0]
     valid = valid_name(name)
+
     if valid:
         print(colorama.Fore.GREEN + f"{name} is available!")
         add_name_to_file(name)
@@ -50,18 +54,28 @@ def check_word_name():
         print(colorama.Fore.RED + f"Getting rate limited, sleeping for 1s.")
         time.sleep(1)     
 
+def main():
+    choice = input("Do you want to check for characters or words? (c/w): ")
     amount_of_names = int(input("How many names do you want to check (-1 for no limit)? "))
+
     if (choice == "c"):
         length_of_char_names = int(input("How long do you want the char names to be: "))
 
+    delay = float(input("How much seconds you want to wait between requests: "))
+
     count = 0
-while True:
+    while True:
         if amount_of_names != -1:
             if count == amount_of_names:
                 break
+
         if choice == "c":
             check_char_name(length_of_char_names)
         elif choice == "w":
             check_word_name()  
+
         count += 1
-    time.sleep(delay)
+        time.sleep(delay)
+
+if __name__ == "__main__":
+    main()
