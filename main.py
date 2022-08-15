@@ -4,6 +4,7 @@ import colorama
 import time
 
 http = httpx.Client()
+alphabet = "abcdefghijklmnopqrstuvwxyz1234567890"
 names_file = "names.txt"
 
 def valid_name(name):
@@ -23,6 +24,7 @@ def add_name_to_file(name):
     with open(names_file, "a") as f:
         f.write(f"{name}\n")
     name = ""
+        name += random.choice(alphabet)
     valid = valid_name(name)
     if valid:
         print(colorama.Fore.GREEN + f"{name} is available!")
