@@ -50,13 +50,18 @@ def check_word_name():
         print(colorama.Fore.RED + f"Getting rate limited, sleeping for 1s.")
         time.sleep(1)     
 
+    amount_of_names = int(input("How many names do you want to check (-1 for no limit)? "))
     if (choice == "c"):
         length_of_char_names = int(input("How long do you want the char names to be: "))
 
+    count = 0
 while True:
-    if (choice == "c"):
+        if amount_of_names != -1:
+            if count == amount_of_names:
+                break
         if choice == "c":
             check_char_name(length_of_char_names)
         elif choice == "w":
             check_word_name()  
+        count += 1
     time.sleep(delay)
