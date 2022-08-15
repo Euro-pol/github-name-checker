@@ -24,11 +24,12 @@ def add_name_to_file(name):
         f.write(f"{name}\n")
     name = ""
     valid = valid_name(name)
+    if valid:
         print(colorama.Fore.GREEN + f"{name} is available!")
         add_name_to_file(name)
-    elif (r.status_code == 200):
+    elif not valid:
         print(colorama.Fore.RED + f"{name} is not available!")
-    elif (r.status_code == 429):
+    elif valid.lower() == "ratelimited":
         print(colorama.Fore.RED + f"Getting rate limited, sleeping for 1s.")
         time.sleep(1)
 
@@ -36,11 +37,12 @@ def checkword():
     name = ""
     name = http.get("https://random-word-api.herokuapp.com/word").json()[0]
     valid = valid_name(name)
+    if valid:
         print(colorama.Fore.GREEN + f"{name} is available!")
         add_name_to_file(name)
-    elif (r.status_code == 200):
+    elif not valid:
         print(colorama.Fore.RED + f"{name} is not available!")
-    elif (r.status_code == 429):
+    elif valid.lower() == "ratelimited":
         print(colorama.Fore.RED + f"Getting rate limited, sleeping for 1s.")
         time.sleep(1)     
 
