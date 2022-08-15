@@ -4,6 +4,7 @@ import colorama
 import time
 
 http = httpx.Client()
+names_file = "names.txt"
 
 def valid_name(name):
     """
@@ -18,10 +19,13 @@ def valid_name(name):
         return False
     elif resp.status_code == 429:
         return "ratelimited"
+def add_name_to_file(name):
+    with open(names_file, "a") as f:
+        f.write(f"{name}\n")
     name = ""
     valid = valid_name(name)
         print(colorama.Fore.GREEN + f"{name} is available!")
-        f.write(f"{name}\n")
+        add_name_to_file(name)
     elif (r.status_code == 200):
         print(colorama.Fore.RED + f"{name} is not available!")
     elif (r.status_code == 429):
@@ -33,7 +37,7 @@ def checkword():
     name = http.get("https://random-word-api.herokuapp.com/word").json()[0]
     valid = valid_name(name)
         print(colorama.Fore.GREEN + f"{name} is available!")
-        f.write(f"{name}\n")
+        add_name_to_file(name)
     elif (r.status_code == 200):
         print(colorama.Fore.RED + f"{name} is not available!")
     elif (r.status_code == 429):
