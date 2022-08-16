@@ -1,47 +1,81 @@
-import requests
+import httpx
 import random
 import colorama
 import time
 
-choice = input("Do you want to check for characters or words? (c/w): ")
+http = httpx.Client()
+alphabet = "abcdefghijklmnopqrstuvwxyz1234567890"
+names_file = "names.txt"
 
-if (choice == "c"):
-    i = int(input("How much char names you want to check: "))
-delay = float(input("How much seconds you want to wait between requests: "))
+def valid_name(name):
+    """
+    Returns True if the name is available, False otherwise. And "ratelimited" if the API is ratelimited.
+    """
 
-f = open("names.txt", "a")
+    resp = http.get(f"https://github.com/{name}")
 
-def checkchar():
-    name = ""
-    for x in range(i):
-        name += random.choice("abcdefghijklmnopqrstuvwxyz1234567890")
-    r = requests.get(f"https://github.com/{name}")
-    if (r.status_code == 404):
-        print(colorama.Fore.GREEN + f"{name} is available!")
+    if resp.status_code == 404:
+        return True
+    elif resp.status_code == 200:
+        return False
+    elif resp.status_code == 429:
+        return "ratelimited"
+
+def add_name_to_file(name):
+    with open(names_file, "a") as f:
         f.write(f"{name}\n")
-    elif (r.status_code == 200):
+
+def check_char_name(length_of_name):
+    name = ""
+    for x in range(length_of_name):
+        name += random.choice(alphabet)
+    valid = valid_name(name)
+
+    if valid:
+        print(colorama.Fore.GREEN + f"{name} is available!")
+        add_name_to_file(name)
+    elif not valid:
         print(colorama.Fore.RED + f"{name} is not available!")
-    elif (r.status_code == 429):
+    elif valid.lower() == "ratelimited":
         print(colorama.Fore.RED + f"Getting rate limited, sleeping for 1s.")
         time.sleep(1)
 
-def checkword():
+def check_word_name():
     name = ""
-    name = requests.get("https://random-word-api.herokuapp.com/word").text.strip('"[]')
-    r = requests.get(f"https://github.com/{name}")
-    if (r.status_code == 404):
+    name = http.get("https://random-word-api.herokuapp.com/word").json()[0]
+    valid = valid_name(name)
+
+    if valid:
         print(colorama.Fore.GREEN + f"{name} is available!")
-        f.write(f"{name}\n")
-    elif (r.status_code == 200):
+        add_name_to_file(name)
+    elif not valid:
         print(colorama.Fore.RED + f"{name} is not available!")
-    elif (r.status_code == 429):
+    elif valid.lower() == "ratelimited":
         print(colorama.Fore.RED + f"Getting rate limited, sleeping for 1s.")
         time.sleep(1)     
 
+def main():
+    choice = input("Do you want to check for characters or words? (c/w): ")
+    amount_of_names = int(input("How many names do you want to check (-1 for no limit)? "))
 
-while True:
     if (choice == "c"):
-        checkchar()
-    elif (choice == "w"):
-        checkword()    
-    time.sleep(delay)
+        length_of_char_names = int(input("How long do you want the char names to be: "))
+
+    delay = float(input("How much seconds you want to wait between requests: "))
+
+    count = 0
+    while True:
+        if amount_of_names != -1:
+            if count == amount_of_names:
+                break
+
+        if choice == "c":
+            check_char_name(length_of_char_names)
+        elif choice == "w":
+            check_word_name()  
+
+        count += 1
+        time.sleep(delay)
+
+if __name__ == "__main__":
+    main()
